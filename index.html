@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coleta de Localização</title>
+</head>
+<body>
+  
+  <!--button  type="button" onclick="enviarServidor()">Sincronizar</button-->
+  <p id="msg"></p>
+
+    <script>
+        function obterLocalizacao() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(mostrarLocalizacao, erroLocalizacao);
+        } else {
+          alert("Seu navegador não suporta geolocalização.");
+        }
+      }
+
+      function mostrarLocalizacao(posicao) {
+        const coordenadas = {
+          latitude,
+          longitude
+        };
+
+        // Convertendo o objeto para JSON e armazenando no localStorage
+        localStorage.setItem('coordenadas', JSON.stringify(coordenadas));
+      }
+
+      function erroLocalizacao(erro) {
+        console.error("Erro ao obter a localização:", erro);
+      }
+
+      // Chamando a função para obter a localização
+      obterLocalizacao();
+
+      const localArmazenado = localStorage.getItem('coordenadas');
+      //const longitudeArmazenada = localStorage.getItem('longitude');
+
+      
+
+      async function enviarServidor(){
+       
+        
+        if(localStorage.hasOwnProperty("coordenadas")){
+          let dadosLocalstorage = JSON.parse(localStorage.getItem("coordenadas"));
+          
+          await fetch("save_location.php", {
+            method: "POST",
+            body: JSON.stringify(dadosLocalstorage),
+            headers: {
+                "Content-Type": "application/json"
+            }
+          }).then((resposta) => {
+              console.log(resposta);
+
+              //se chegar um json no save_location
+
+              resposta.json().then(data => {
+                
+                document.getElementById("msg").innerHTML = data.msg;
+
+              });
+
+
+              if(resposta.status == 200){
+
+              }
+
+          });
+        }else{
+           document.getElementById("msg").innerHTML = "<p style='color' #f00> Erro </p>"
+        }
+      }
+      enviarServidor()
+    </script>
+</body>
+</html>
